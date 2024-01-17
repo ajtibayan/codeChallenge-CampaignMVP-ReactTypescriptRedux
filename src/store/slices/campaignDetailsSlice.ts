@@ -58,9 +58,31 @@ interface CampaignDetailsState {
 
 const initialState: CampaignDetailsState = {
   loading: true,
-  dataCur: [],
-  dataTtl: [],
-  history: [[]],
+  dataCur: [
+    {
+      impressions: 0,
+      clicks: 0,
+      users: 0,
+      ctr: 0,
+    },
+  ],
+  dataTtl: [
+    {
+      impressionsTtl: 0,
+      clicksTtl: 0,
+      usersTtl: 0,
+    },
+  ],
+  history: [
+    [
+      {
+        impressions: 0,
+        clicks: 0,
+        users: 0,
+        ctr: 0,
+      },
+    ],
+  ],
   isError: false,
   count: 0,
 };

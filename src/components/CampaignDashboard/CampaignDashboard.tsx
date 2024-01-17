@@ -1,9 +1,5 @@
 import { useCampaignSelector } from "../../store";
 import { useEffect, useState } from "react";
-import {
-  CampaignDetails,
-  CampaignDetailsTotals,
-} from "../../store/slices/campaignDetailsSlice";
 import { Typography } from "@mui/material";
 import DataTile from "@components/DataTile/DataTile";
 import MetricsDisplay from "@components/MetricsDisplay/MetricsDisplay";
@@ -17,25 +13,8 @@ interface DashboardProps {
   name?: string;
 }
 
-const metricsInit: CampaignDetails = {
-  impressions: 0,
-  clicks: 0,
-  users: 0,
-  ctr: 0,
-};
-
-const metricsTotalsInit: CampaignDetailsTotals = {
-  impressionsTtl: 0,
-  clicksTtl: 0,
-  usersTtl: 0,
-};
-
 // Component renders the Campaign Details section
 const CampaignDashboard: React.FC<DashboardProps> = ({ cid = 0, name }) => {
-  // Use of local state to avoid momentary pending/loading of global state each time data
-  // is refreshed during polling
-  const [metrics, setMetrics] = useState(metricsInit);
-  const [metricsTtl, setMetricsTtl] = useState(metricsTotalsInit);
   const [impressionsGraph, setImpressionsGraph] = useState([0]);
   const [clicksGraph, setClicksGraph] = useState([0]);
   const [usersGraph, setUsersGraph] = useState([0]);
@@ -46,21 +25,17 @@ const CampaignDashboard: React.FC<DashboardProps> = ({ cid = 0, name }) => {
   );
 
   useEffect(() => {
-    if (dataCur.length > 0) {
-      setMetrics(dataCur[cid]);
-      setMetricsTtl(dataTtl[cid]);
-      setImpressionsGraph(setGraph(history, cid, "impressions"));
-      setClicksGraph(setGraph(history, cid, "clicks"));
-      setUsersGraph(setGraph(history, cid, "users"));
-      setCtrGraph(setGraph(history, cid, "ctr"));
+    setImpressionsGraph(setGraph(history, cid, "impressions"));
+    setClicksGraph(setGraph(history, cid, "clicks"));
+    setUsersGraph(setGraph(history, cid, "users"));
+    setCtrGraph(setGraph(history, cid, "ctr"));
 
-      if (count > 9) {
-        setXaxis(history.map((data, index) => index + (count - 10)));
-      } else {
-        setXaxis(history.map((data, index) => index));
-      }
+    if (count > 9) {
+      setXaxis(history.map((data, index) => index + (count - 10)));
+    } else {
+      setXaxis(history.map((data, index) => index));
     }
-  }, [cid, dataCur, dataTtl, count, history]);
+  }, [cid, count, history]);
 
   if (isError) {
     toast.error("Error loading Campaign Details", { toastId: "error2" });
@@ -81,32 +56,32 @@ const CampaignDashboard: React.FC<DashboardProps> = ({ cid = 0, name }) => {
           graphPts={impressionsGraph}
         >
           <MetricsDisplay
-            metric={metrics.impressions}
-            metricTtl={metricsTtl.impressionsTtl}
+            metric={dataCur[cid].impressions}
+            metricTtl={dataTtl[cid].impressionsTtl}
             metricType="Impressions"
           />
         </DataTile>
         <DataTile dataName="Clicks" xaxis={xaxis} graphPts={clicksGraph}>
           <MetricsDisplay
-            metric={metrics.clicks}
-            metricTtl={metricsTtl.clicksTtl}
+            metric={dataCur[cid].clicks}
+            metricTtl={dataTtl[cid].clicksTtl}
             metricType="Clicks"
           />
         </DataTile>
         <DataTile dataName="Users" xaxis={xaxis} graphPts={usersGraph}>
           <MetricsDisplay
-            metric={metrics.users}
-            metricTtl={metricsTtl.usersTtl}
+            metric={dataCur[cid].users}
+            metricTtl={dataTtl[cid].usersTtl}
             metricType="Users"
           />
         </DataTile>
         <DataTile dataName="CTR" xaxis={xaxis} graphPts={ctrGraph}>
           <MetricsDisplay
-            metric={parseFloat(metrics.ctr.toFixed(2))}
+            metric={parseFloat(dataCur[cid].ctr.toFixed(2))}
             metricTtl={
               parseFloat(
                 (
-                  (metricsTtl.clicksTtl / metricsTtl.impressionsTtl) *
+                  (dataTtl[cid].clicksTtl / dataTtl[cid].impressionsTtl) *
                   100
                 ).toFixed(2)
               ) || 0
